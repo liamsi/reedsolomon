@@ -838,10 +838,15 @@ func mulLog(a, log_b ffe) ffe {
 	return expLUT[addMod(logLUT[a], log_b)]
 }
 
+var addModModulusCaseCount int
+
 // z = x + y (mod kModulus)
 func addMod(a, b ffe) ffe {
 	sum := uint(a) + uint(b)
-
+	if ffe(sum+sum>>bitwidth) == 65535 {
+		addModModulusCaseCount++
+		println("addMod called with:", a, b, "-> a+b==65535, returns", ffe(sum+sum>>bitwidth))
+	}
 	// Partial reduction step, allowing for kModulus to be returned
 	return ffe(sum + sum>>bitwidth)
 }
