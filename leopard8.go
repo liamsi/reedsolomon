@@ -924,12 +924,26 @@ func mulLog8(a, log_b ffe8) ffe8 {
 	return expLUT8[addMod8(logLUT8[a], log_b)]
 }
 
-// z = x + y (mod kModulus)
-func addMod8(a, b ffe8) ffe8 {
-	sum := uint(a) + uint(b)
+var addMod8CallCount int
+var addMod8Return255Count int
 
-	// Partial reduction step, allowing for kModulus to be returned
-	return ffe8(sum + sum>>bitwidth8)
+// z = x + y (mod kModulus)
+var addMod8ModulusCaseCount int
+
+func addMod8(a, b ffe8) ffe8 {
+	addMod8CallCount++
+	res := ffe8(uint(a) + uint(b) + (uint(a)+uint(b))>>bitwidth8)
+	sum := uint(a) + uint(b)
+	if sum == 255 || sum == 510 {
+		addMod8ModulusCaseCount++
+		println("addMod8 called with:", a, b, "-> a+b==255 or 510, returns", res)
+	} else if res == 255 {
+		addMod8Return255Count++
+		println("addMod8 called with:", a, b, "-> returns 255")
+	} else {
+		// println("addMod8 called with:", a, b, "-> returns", res)
+	}
+	return res
 }
 
 // z = x - y (mod kModulus)
